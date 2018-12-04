@@ -48,6 +48,53 @@ class TokenService {
     }
 
     /**
+     * Authentification à l'aide du Token
+     * @param Request $request
+     * @return array
+     */
+    public function tokenAuthentication(Request $request): array {
+        $authTokenHeader = $request->get("token");
+        
+        $isValid = Token::validate($authTokenHeader, $this->secret);
+        
+        if ($isValid) {
+            $validator = new TokenValidator();
+            $validator->splitToken($authTokenHeader)
+                ->validateExpiration()
+                ->validateSignature($this->secret);
+            
+            
+                
+            $payload = json_decode($validator->getPayload());
+            
+            
+            $now = new \DateTime();
+            $expiration = \DateTime::createFromFormat("Y-m-d H:i:s", $payload->exp);
+            
+            //echo "Compare : " . $now->format("d-m-Y H:i:s") . " à " . $expiration->format("d-m-Y H:i:s") . "\n";
+            
+            if ($now > $expiration) {
+                return [
+                    "code" => Response::HTTP_PRECONDITION_FAILED,
+                    "user" => $payload->user_id
+                ];
+            } else {
+                return [
+                    "code" => Response::HTTP_OK,
+                    "user" => $payload->user_id
+                ];
+            }
+            
+            
+        }
+        
+        return [
+            "code" => Response::HTTP_NETWORK_AUTHENTICATION_REQUIRED,
+            "user" => 0
+        ];
+    }
+    
+    /**
      * Authentifie une requête
      */
     private function requestAuthentication(Request $request): array {
@@ -59,12 +106,12 @@ class TokenService {
 	        $validator = new TokenValidator();
 	        $validator->splitToken($authTokenHeader)
 	           ->validateExpiration()
-	           ->validateSignature($$this->secret);
+	           ->validateSignature($this->secret);
 	        
             $payload = $validator->getPayload();
 
             $now = new \DateTime();
-            $expiration = DateTime::createFromFormat("Y-m-d H:i:s", $payload["exp"]);
+            $expiration = \DateTime::createFromFormat("Y-m-d H:i:s", $payload["exp"]);
 
             if ($now > $expiration) {
                 return [

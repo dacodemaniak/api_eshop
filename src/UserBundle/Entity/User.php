@@ -81,12 +81,20 @@ class User
     private $content;
 
     /**
-     * @var \UserBundle\Groupe
+     * @var \UserBundle\Entity\Groupe
      *
      * @ORM\ManyToOne(targetEntity="Groupe", inversedBy="users", fetch="EAGER")
      * @ORM\JoinColumn(name="groupe_id", referencedColumnName="id")
      */
     private $group;
+    
+    /**
+     * @var \ShopBundle\Entity\Shop
+     *
+     * @ORM\ManyToOne(targetEntity="\ShopBundle\Entity\Shop", inversedBy="users", fetch="EAGER")
+     * @ORM\JoinColumn(name="shop_id", referencedColumnName="id")
+     */
+    private $shop;
     
     /**
      * Constructeur de la classe User
@@ -331,7 +339,7 @@ class User
     
     /**
      * Retourne le groupe de l'utilisateur courant
-     * @return UserBundle\Groupe
+     * @return \UserBundle\Entity\Groupe
      */
     public function getGroup() {
     	return $this->group;
@@ -339,6 +347,18 @@ class User
     
     public function setGroup($group) {
     	$this->group = $group;
+    }
+    
+    /**
+     * Retourne la boutique de l'utilisateur courant
+     * @return \ShopBundle\Entity\Shop
+     */
+    public function getShop() {
+        return $this->shop;
+    }
+    
+    public function setShop(\ShopBundle\Entity\Shop $shop) {
+        $this->shop = $shop;
     }
 }
 
