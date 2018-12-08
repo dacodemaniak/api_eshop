@@ -3,6 +3,9 @@
 namespace ShopBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Encoder\JsonDecode;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 /**
  * Shop
@@ -40,6 +43,25 @@ class Shop
      * @ORM\OneToMany(targetEntity="\UserBundle\Entity\User", mappedBy="shop")
      */
     private $users;
+    
+    public function __construct() {
+        $this->users = new ArrayCollection();
+    }
+    
+    public function __call(string $methodName, array $params) {
+        $attributeName = substr($methodName, 3, strlen($methodName));
+        
+        $firstChar = strtolower(substr($attributeName, 0, 1));
+        
+        $attributeName = $firstChar . substr($attributeName, 1, strlen($attributeName));
+        
+        $content = $this->getContent();
+        
+        if (property_exists($content, $attributeName)) {
+            return $content->{$attributeName};
+        }
+        
+    }
     
     /**
      * Get id
@@ -96,7 +118,12 @@ class Shop
      */
     public function getContent()
     {
-        return $this->content;
+        if ($this->content !== null) {
+            $json = new JsonDecode();
+            return $json->decode($this->content, JsonEncoder::FORMAT);
+        }
+        
+        return null;
     }
     
     /**
