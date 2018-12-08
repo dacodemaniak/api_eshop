@@ -49,4 +49,5 @@ services:
             $secret: '%jwt_token_secret%'
 
     token_service: 
-        class: UserBundle\Service\TokenService
+        public: true
+        alias: UserBundle\Service\TokenService

@@ -99,17 +99,17 @@ class TokenService {
      */
     private function requestAuthentication(Request $request): array {
         $authTokenHeader = $request->headers->get('X-Auth-Token');
-
-        $isValid = Token::validate($authTokenHeader, $this->secret);
+        
+        // $isValid = Token::validate($authTokenHeader, $this->secret);
 	    
-	    if ($isValid) {
+	    //if ($isValid) {
 	        $validator = new TokenValidator();
 	        $validator->splitToken($authTokenHeader)
-	           ->validateExpiration()
 	           ->validateSignature($this->secret);
 	        
-            $payload = $validator->getPayload();
+            $payload = json_decode($validator->getPayload(), true);
 
+            
             $now = new \DateTime();
             $expiration = \DateTime::createFromFormat("Y-m-d H:i:s", $payload["exp"]);
 
@@ -126,7 +126,7 @@ class TokenService {
             }
 
 
-	    }
+	    //}
 	    
 	    return [
             "code" => Response::HTTP_NETWORK_AUTHENTICATION_REQUIRED,
